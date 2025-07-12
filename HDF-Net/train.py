@@ -81,30 +81,30 @@ if __name__ == '__main__':
             optimizer.step()
             lr_scheduler.step(lr_scheduler.last_epoch + 1)
             epochAccuracy.append(accuracy(output1, mask).cpu())
-            epochLoss.append(loss.item())  # 需要获取数值来转换
+            epochLoss.append(loss.item())  # need to get the numerical value for conversion
             if batch_id % (int(len(trainloader) / 20)) == 0:
-                print("当前运行到[{}/{}], 目前Epoch准确率为：{:.6f}%，Loss：{:.6f}".format(batch_id, len(trainloader),
+                print("Currently running [{}/{}], Current Epoch accuracy: {:.6f}%, Loss: {:.6f}".format(batch_id, len(trainloader),
                                                                                  np.mean(epochAccuracy) * 100, loss))
-        # ==============本轮训练结束==============
-        # 收集训练集准确率
+        # ==============End of current training round==============
+        # Collect training set accuracy
         trainACC.append(np.mean(epochAccuracy))
         globalLoss.append(np.mean(epochLoss))
-        # ==========进行一次验证集测试============
+        # ==========Perform one test set evaluation============
         localTestACC = []
-        model.eval()  # 进入评估模式，节约开销
+        model.eval()  # Enter evaluation mode, save resources
         for img, mask in testloader:
-            torch.no_grad()  # 上下文管理器，此部分内不会追踪梯度/
+            torch.no_grad()  # Context manager, no gradient tracking in this section
             img=img.to(device)
             mask=mask.to(device)
             # edge=edge.to(device)
             output,_,_ = model(img)
             localTestACC.append(accuracy(output, mask).cpu())
-        # # ==========验证集测试结束================
-        # # 收集验证集准确率
+        # # ==========End of test set evaluation================
+        # # Collect test set accuracy
         testACC.append(np.mean(localTestACC))
         print("Current Epoch finished, training accuracy: {:.6f}%, training loss: {:.6f}, test accuracy: {:.6f}%".format(trainACC[-1] * 100,globalLoss[-1], testACC[-1] * 100))
         # print("Current Epoch finished, training accuracy: {:.6f}%, training loss: {:.6f}".format(trainACC[-1] * 100, globalLoss[-1]))
-        # 周期性保存结果到文件
+        # Periodically save results to file
         if bestACC < testACC[-1]:
             bestACC=testACC[-1]
             best_epoch = epoch + 1
