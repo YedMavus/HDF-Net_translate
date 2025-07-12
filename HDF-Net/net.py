@@ -40,15 +40,15 @@ class SpatialAttention(nn.Module):
     x = self.conv1(x)
     return self.sigmoid(x)
 
-# 深度可分离卷积
+# Depthwise separable convolution
 class SeparableConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding, dilation=1, bias=False):
         super(SeparableConv2d, self).__init__()
 
-        # 逐通道卷积：groups=in_channels=out_channels
+        # Channel-wise convolution: groups=in_channels=out_channels
         self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size, stride, padding, dilation, groups=in_channels,
                                bias=bias)
-        # 逐点卷积：普通1x1卷积
+        # Pointwise convolution: standard 1x1 convolution
         self.pointwise = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, dilation=1, groups=1,
                                    bias=bias)
 

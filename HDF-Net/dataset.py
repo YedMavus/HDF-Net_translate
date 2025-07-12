@@ -5,18 +5,18 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # data.Dataset:
-# 所有子类应该override__len__和__getitem__，前者提供了数据集的大小，后者支持整数索引，范围从0到len(self)
+# All subclasses should override __len__ and __getitem__, the former provides the size of the dataset, and the latter supports integer indexing from 0 to len(self)
 
 class LiverDataset(data.Dataset):
-    # 创建LiverDataset类的实例时，就是在调用init初始化
-    def __init__(self, root, transform=None, target_transform=None):  # root表示图片路径
-        n = len(os.listdir(root)) // 2  # os.listdir(path)返回指定路径下的文件和文件夹列表。/是真除法,//对结果取整
+    # When creating an instance of LiverDataset class, we're calling init for initialization
+    def __init__(self, root, transform=None, target_transform=None):  # root represents the image path
+        n = len(os.listdir(root)) // 2  # os.listdir(path) returns a list of files and folders in the specified path. / is true division, // is integer division
 
         imgs = []
         for i in range(n):
-            img = os.path.join(root, "%d_rgb.jpg" % (i+1))  # os.path.join(path1[,path2[,......]]):将多个路径组合后返回
+            img = os.path.join(root, "%d_rgb.jpg" % (i+1))  # os.path.join(path1[,path2[,...]]): combines multiple paths and returns the result
             mask = os.path.join(root, "%d_mask.jpg" % (i+1))
-            imgs.append([img, mask])  # append只能有一个参数，加上[]变成一个list
+            imgs.append([img, mask])  # append can only have one parameter, adding [] makes it a list
 
         self.imgs = imgs
         self.transform = transform
@@ -48,10 +48,10 @@ class LiverDataset(data.Dataset):
         if self.target_transform is not None:
             img_y = self.target_transform(img_y)
             # img_z = self.target_transform(img_z)
-        return img_x, img_y  # 返回的是图片
+        return img_x, img_y  # returning the images
 
     def __len__(self):
-        return len(self.imgs)  # 400,list[i]有三个元素，[img,mask, edge]
+        return len(self.imgs)  # 400, list[i] has three elements, [img, mask, edge]
 
     # def compress_image(self,image,quality=100):
     #     self.image=image

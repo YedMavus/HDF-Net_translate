@@ -7,31 +7,30 @@ from torch import optim, nn
 from dataset import LiverDataset
 from torch.utils.data import DataLoader
 
-# 是否使用current cuda device or torch.device('cuda:0')
+# Whether to use current cuda device or torch.device('cuda:0')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 BatchSize=4
 epoches=100
 
 x_transform = T.Compose([
-    T.Resize((256,256)),  # 随机裁剪到256x256大小
+    T.Resize((256,256)),  # Resize to 256x256
     # T.Scale((256,256)),
-    # T.RandomHorizontalFlip(),  # 随机水平翻转
-    # T.RandomVerticalFlip(),    # 随机垂直翻转
-    T.ToTensor(),  # 转化成Tensor
-    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 正则化
+    # T.RandomHorizontalFlip(),  # Random horizontal flip
+    # T.RandomVerticalFlip(),    # Random vertical flip
+    T.ToTensor(),  # Convert to Tensor
+    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalization
 ])
-# mask只需要转换为tensor
+# mask only needs to be converted to tensor
 y_transform = T.Compose([
     T.Resize((256,256)),
-    # T.RandomHorizontalFlip(),  # 随机水平翻转
-    # T.RandomVerticalFlip(),    # 随机垂直翻转
+    # T.RandomHorizontalFlip(),  # Random horizontal flip
+    # T.RandomVerticalFlip(),    # Random vertical flip
     T.ToTensor(),
-    # T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 正则化
+    # T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalization
 ])
 
-# 定义准确率函数
-# defination of accracy function
+# definition of accuracy function
 def accuracy(output:torch.Tensor , mask):
     output=torch.sigmoid(output)
     output = (output > 0.5).float()
@@ -45,9 +44,9 @@ if __name__ == '__main__':
     trainloader=DataLoader(train_dataset,batch_size=BatchSize,num_workers=8,shuffle=True)
     test_dataset=LiverDataset(r"F:\ImageManipulationDatasets\test-NIST\test", transform=x_transform, target_transform=y_transform)
     testloader=DataLoader(test_dataset,num_workers=8)
-    # 输出训练集长度 print the length of training set
+    # print the length of training set
     print('len(trainloader):{}'.format(len(trainloader)))
-    # 输出验证集长度 print the length of training set
+    # print the length of test set
     print('len(testloader):{}'.format(len(testloader)))
 
     model=HDF_Net().to(device)
@@ -62,15 +61,15 @@ if __name__ == '__main__':
     bestACC=0.0
     best_epoch=0
     for epoch in range(epoches):
-        print("===开始本轮的Epoch {}===总计是Epoch {}===".format(epoch,epoches-1))
-        # 收集训练参数
+        print("===Starting this Epoch {}===Total Epochs {}===".format(epoch,epoches-1))
+        # Collect training parameters
         epochAccuracy = []
         epochLoss = []
         model.train()
-        # =============实际训练流程=================
+        # =============Actual training process=================
         for batch_id, (img, mask) in enumerate(trainloader):
             # torch.train()
-            # 先初始化梯度0
+            # First initialize gradient to 0
             optimizer.zero_grad()
             img=img.to(device)
             mask=mask.to(device)
@@ -103,8 +102,8 @@ if __name__ == '__main__':
         # # ==========验证集测试结束================
         # # 收集验证集准确率
         testACC.append(np.mean(localTestACC))
-        print("当前Epoch结束，训练集准确率为：{:.6f}%，训练集损失为: {:.6f},测试集准确率为：{:.6f}%".format(trainACC[-1] * 100,globalLoss[-1], testACC[-1] * 100))
-        # print("当前Epoch结束，训练集准确率为：{:.6f}%，训练集损失为: {:.6f}".format(trainACC[-1] * 100, globalLoss[-1]))
+        print("Current Epoch finished, training accuracy: {:.6f}%, training loss: {:.6f}, test accuracy: {:.6f}%".format(trainACC[-1] * 100,globalLoss[-1], testACC[-1] * 100))
+        # print("Current Epoch finished, training accuracy: {:.6f}%, training loss: {:.6f}".format(trainACC[-1] * 100, globalLoss[-1]))
         # 周期性保存结果到文件
         if bestACC < testACC[-1]:
             bestACC=testACC[-1]
